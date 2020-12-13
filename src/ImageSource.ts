@@ -5,11 +5,16 @@ import convolveImage from './util/convolveImage';
 import { containImage, fileObjToData } from './util/image';
 
 /**
- * A class for handling the uploading 
+ * A class for uploading images into WebGL
+ * Usage:
+ * const imageSource = new ImageSource(gl, dataCallback);
+ * imageSource.setup([gl.canvas.width, gl.canvas.height], 'boxBlur');
+ * button.addEventListener('click', imageSource.handler);
  */
 export default class ImageSource {
     filter = 'none';
 
+    private canvas: HTMLCanvasElement;
     private framebuffer: WebGLFramebuffer;
     private gl: WebGLRenderingContext;
     private imageTexture: WebGLTexture;
@@ -60,8 +65,33 @@ export default class ImageSource {
     };
 
     /**
+     * Process source image with current filter.
+     * Send result to client with the callback.
+     */
+    process = () => {
+        if (!(this.canvas && this.imageTexture)) {
+            return;
+        }
+
+        if (this.filter === 'none') {
+            this.callback(this.imageTexture, this.canvas.width, this.canvas.height);
+            return;
+        }
+
+        this.outputTexture = twgl.createTexture(this.gl, { src: this.canvas });
+        bindFramebufferWithTexture(
+            this.gl,
+            this.framebuffer,
+            this.canvas.width,
+            this.canvas.height,
+            this.outputTexture
+        );
+        convolveImage(this.gl, { image: this.imageTexture, kernel: this.filter });
+        this.callback(this.outputTexture, this.canvas.width, this.canvas.height);
+    };
+
+    /**
      * Converts an uploaded image from file object to WebGL texture.
-     * Sends the result back to the client with the callback.
      * @param e 
      */
     private onUpload = async (e: InputEvent) => {
@@ -75,26 +105,11 @@ export default class ImageSource {
             'containing image within: ',
             this.res.map((c) => c / 2)
         );
-        const canvas = await containImage(srcData, this.res[0] / 2, this.res[1] / 2);
-        console.log('resulting dimensions: ', canvas.width, canvas.height);
-        this.imageTexture = twgl.createTexture(this.gl, { src: canvas });
 
-        if (this.filter === 'none') {
-            this.callback(this.imageTexture, canvas.width, canvas.height);
-            return;
-        }
+        this.canvas = await containImage(srcData, this.res[0] / 2, this.res[1] / 2);
+        console.log('resulting dimensions: ', this.canvas.width, this.canvas.height);
+        this.imageTexture = twgl.createTexture(this.gl, { src: this.canvas });
 
-        this.outputTexture = twgl.createTexture(this.gl, { src: canvas });
-
-        bindFramebufferWithTexture(
-            this.gl,
-            this.framebuffer,
-            canvas.width,
-            canvas.height,
-            this.outputTexture
-        );
-        convolveImage(this.gl, { image: this.imageTexture, kernel: this.filter });
-
-        this.callback(this.outputTexture, canvas.width, canvas.height);
+        this.process();
     };
 }
