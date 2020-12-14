@@ -47,9 +47,9 @@ function drawTextureToCanvas() {
 
 /**
  * Draw image texture from ImageSource to canvas
- * @param imageTexture 
- * @param width 
- * @param height 
+ * @param imageTexture
+ * @param width
+ * @param height
  */
 function drawImageToCanvas(imageTexture: WebGLTexture, width: number, height: number) {
     // draw image to the center of the simulation texture
