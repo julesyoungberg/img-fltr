@@ -5,9 +5,9 @@ import convolveImage from './util/convolveImage';
 import { containImage, fileObjToData } from './util/image';
 
 /**
- * A class for uploading images into WebGL
+ * A class for uploading images into WebGL.
  * Usage:
- * const imageSource = new ImageSource(gl, dataCallback);
+ * const imageSource = new ImageSource(gl, drawImageToCanvas);
  * imageSource.setup([gl.canvas.width, gl.canvas.height], 'boxBlur');
  * button.addEventListener('click', imageSource.handler);
  */
@@ -21,12 +21,12 @@ export default class ImageSource {
     private input: HTMLInputElement;
     private outputTexture: WebGLTexture;
     private res: number[];
-    
+
     private callback: (t: WebGLTexture, w: number, h: number) => void;
 
     /**
      * Creates a new ImageSource
-     * @param gl 
+     * @param gl
      * @param callback function to be called when there is a new image source available
      */
     constructor(
@@ -56,7 +56,7 @@ export default class ImageSource {
 
     /**
      * This function facilitates the uploading of an image.
-     * It expects a file input on the page wih ID below. 
+     * It expects a file input on the page wih ID below.
      * Attach this to a button on the page.
      */
     handler = () => {
@@ -92,7 +92,7 @@ export default class ImageSource {
 
     /**
      * Converts an uploaded image from file object to WebGL texture.
-     * @param e 
+     * @param e
      */
     private onUpload = async (e: InputEvent) => {
         const input = e.target as HTMLInputElement;
@@ -101,13 +101,7 @@ export default class ImageSource {
         }
 
         const srcData = await fileObjToData(input.files[0]);
-        console.log(
-            'containing image within: ',
-            this.res.map((c) => c / 2)
-        );
-
         this.canvas = await containImage(srcData, this.res[0] / 2, this.res[1] / 2);
-        console.log('resulting dimensions: ', this.canvas.width, this.canvas.height);
         this.imageTexture = twgl.createTexture(this.gl, { src: this.canvas });
 
         this.process();

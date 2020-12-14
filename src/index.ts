@@ -16,19 +16,22 @@ gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 /**
  * create image source and define how it interacts with the scene
  */
-const imageSource = new ImageSource(gl, (imageTexture: WebGLTexture, width: number, height: number) => {
-    // draw image to the center of the canvas
-    bindFramebuffer(gl, null, gl.canvas.width, gl.canvas.height);
-    drawImage(gl, {
-        image: imageTexture,
-        x: gl.canvas.width / 2,
-        y: gl.canvas.height / 2,
-        width,
-        height,
-        destWidth: gl.canvas.width,
-        destHeight: gl.canvas.height,
-    });
-});
+const imageSource = new ImageSource(
+    gl,
+    (imageTexture: WebGLTexture, width: number, height: number) => {
+        // draw image to the center of the canvas
+        bindFramebuffer(gl, null, gl.canvas.width, gl.canvas.height);
+        drawImage(gl, {
+            image: imageTexture,
+            x: gl.canvas.width / 2,
+            y: gl.canvas.height / 2,
+            width,
+            height,
+            destWidth: gl.canvas.width,
+            destHeight: gl.canvas.height,
+        });
+    }
+);
 imageSource.setup([gl.canvas.width, gl.canvas.height]);
 
 /**
