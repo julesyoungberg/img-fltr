@@ -14,16 +14,10 @@ const vertShader = require('./shaders/basic.vert');
 const fragShader = require('./shaders/texture.frag');
 
 /**
- * Initialize WebGL
+ * Initialize WebGL, buffer, and shader
  */
 const gl: WebGLRenderingContext = createContext();
-twgl.resizeCanvasToDisplaySize(gl.canvas as HTMLCanvasElement);
-gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 console.log('canvas dimensions:', gl.canvas.width, gl.canvas.height);
-
-/**
- * Setup shader program and buffer
- */
 const programInfo = twgl.createProgramInfo(gl, [vertShader, fragShader]);
 const bufferInfo = createUnitQuad2D(gl);
 
@@ -32,14 +26,13 @@ const bufferInfo = createUnitQuad2D(gl);
  */
 const framebuffer = gl.createFramebuffer();
 const texture = gl.createTexture();
-const res = getResolution(gl, 128);
+const res = getResolution(gl, 512);
 console.log('res:', res);
 buildTexture(gl, texture, {
     width: res[0],
     height: res[1],
     src: new Float32Array(res[0] * res[1] * 4).fill(0),
 });
-console.log(texture);
 
 /**
  * Draw simulation texture to canvas
